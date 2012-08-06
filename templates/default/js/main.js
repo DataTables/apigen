@@ -136,8 +136,8 @@ $(function() {
 		$('tr', $content).filter(':has(.detailed)')
 			.click(function() {
 				var $this = $(this);
-				$('.short', $this).hide();
-				$('.detailed', $this).show();
+				$('.short', $this).toggle();
+				$('.detailed', $this).toggle();
 			});
 	}
 
