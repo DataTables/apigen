@@ -190,10 +190,22 @@ class Template extends Nette\Templating\FileTemplate
 
 			return $that->doc($long, $element, true);
 		});
+		$this->registerHelper('example', function($annotation, $context) use ($that) {
+			$annotation = preg_replace_callback('~(?:<(code|pre)>.+?</\1>)|([^<]*)~s', function($matches) {
+				return !empty($matches[2])
+					? preg_replace('~\n(?:\t|[ ])+~', ' ', $matches[2])
+					: $matches[0];
+			}, $annotation);
+
+			return $that->doc($annotation, $context, true);
+		});
 
 		// Individual annotations processing
 		$this->registerHelper('annotation', function($value, $name, $context) use ($that, $generator) {
 			switch ($name) {
+				case 'example':
+					$description = $that->example($value, $context);
+					return sprintf('%s', $description ? '<br>' . $description : '');
 				case 'param':
 				case 'return':
 				case 'throws':
