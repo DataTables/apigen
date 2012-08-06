@@ -166,10 +166,14 @@ class Template extends Nette\Templating\FileTemplate
 		// Docblock descriptions
 		$this->registerHelper('description', function($annotation, $context) use ($that) {
 			list(, $description) = $that->split($annotation);
-			if ($context instanceof ReflectionParameter) {
-				$description = preg_replace('~^(\\$' . $context->getName() . ')(\s+|$)~i', '\\2', $description, 1);
-			}
-			return $that->doc($description, $context);
+
+			$description = preg_replace_callback('~(?:<(code|pre)>.+?</\1>)|([^<]*)~s', function($matches) {
+				return !empty($matches[2])
+					? preg_replace('~\n(?:\t|[ ])+~', ' ', $matches[2])
+					: $matches[0];
+			}, $description);
+
+			return $that->doc($description, $context, true);
 		});
 		$this->registerHelper('shortDescription', function($element, $block = false) use ($that) {
 			return $that->doc($element->getShortDescription(), $element, $block);
